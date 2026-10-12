@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ultra Nova — شرح تشغيل البوت</title>
+<meta name="description" content="شرح تشغيل بوت Ultra Nova على Termux خطوة بخطوة، مع روابط التحميل وقائمة الأوامر.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#000; --fg:#fff; --mut:#9a9a9a; --line:#262626; --panel:#0b0b0b; --hover:#141414;
+  --btn-bg:#fff; --btn-fg:#000; --sel:#ffffff30;
+  --sans:"IBM Plex Sans Arabic",system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    --bg:#fff; --fg:#000; --mut:#5e5e5e; --line:#e4e4e4; --panel:#f7f7f7; --hover:#efefef;
+    --btn-bg:#000; --btn-fg:#fff; --sel:#00000020;
+  }
+}
+:root[data-theme="light"]{
+  --bg:#fff; --fg:#000; --mut:#5e5e5e; --line:#e4e4e4; --panel:#f7f7f7; --hover:#efefef;
+  --btn-bg:#000; --btn-fg:#fff; --sel:#00000020;
+}
+:root[data-theme="dark"]{
+  --bg:#000; --fg:#fff; --mut:#9a9a9a; --line:#262626; --panel:#0b0b0b; --hover:#141414;
+  --btn-bg:#fff; --btn-fg:#000; --sel:#ffffff30;
+}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 72px)}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background:var(--bg); color:var(--fg);
+  font-family:var(--sans); font-size:16px; line-height:1.8;
+  -webkit-text-size-adjust:100%;
+}
+::selection{background:var(--sel)}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--fg); outline-offset:3px; border-radius:4px}
+.wrap{max-width:860px; margin:0 auto; padding:0 20px}
+
+/* header */
+header.top{
+  position:sticky; top:env(safe-area-inset-top,0px); z-index:10;
+  background:color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+}
+header.top .wrap{display:flex; align-items:center; gap:14px; height:56px}
+.brand{font-family:var(--mono); font-weight:600; font-size:15px; text-decoration:none; letter-spacing:-.01em; direction:ltr}
+nav.tabs{display:flex; gap:4px; margin-inline-start:auto}
+nav.tabs a{
+  text-decoration:none; color:var(--mut); font-size:14px; font-weight:500;
+  padding:6px 12px; border-radius:8px;
+}
+nav.tabs a:hover{color:var(--fg); background:var(--hover)}
+nav.tabs a[aria-current="page"]{color:var(--fg); background:var(--hover)}
+.theme{
+  background:none; border:1px solid var(--line); color:var(--fg); width:34px; height:34px;
+  border-radius:8px; cursor:pointer; display:grid; place-items:center; font-size:15px;
+}
+.theme:hover{background:var(--hover)}
+
+/* buttons */
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  font:500 15px/1 var(--sans); padding:14px 22px; border-radius:10px; text-decoration:none;
+  border:1px solid var(--fg); cursor:pointer; min-height:48px;
+}
+.btn.solid{background:var(--btn-bg); color:var(--btn-fg); border-color:var(--btn-bg)}
+.btn.ghost{background:transparent; color:var(--fg); border-color:var(--line)}
+.btn.solid:hover{opacity:.88}
+.btn.ghost:hover{background:var(--hover); border-color:var(--mut)}
+.btn.sm{padding:10px 16px; min-height:40px; font-size:14px}
+
+/* hero */
+.hero{padding:64px 0 40px}
+.hero h1{
+  font-family:var(--mono); font-weight:600; direction:ltr; text-align:right;
+  font-size:clamp(44px,11vw,84px); line-height:1; letter-spacing:-.045em; margin:0 0 22px;
+}
+.hero p.lead{font-size:clamp(17px,2.6vw,20px); color:var(--mut); max-width:34em; margin:0 0 30px}
+.hero .cta{display:flex; flex-wrap:wrap; gap:10px}
+.term{
+  margin-top:44px; direction:ltr; text-align:left; border:1px solid var(--line); border-radius:12px;
+  background:var(--panel); font-family:var(--mono); font-size:14px; line-height:1.9; overflow:hidden;
+}
+.term .bar{display:flex; gap:6px; padding:12px 14px; border-bottom:1px solid var(--line)}
+.term .bar i{width:10px; height:10px; border-radius:50%; border:1px solid var(--mut); display:block}
+.term pre{margin:0; padding:16px 18px; overflow-x:auto; white-space:pre}
+.term .dim{color:var(--mut)}
+.cursor{display:inline-block; width:8px; height:1.1em; background:var(--fg); vertical-align:text-bottom; animation:blink 1.1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+
+/* sections */
+section.block{padding:56px 0 8px; border-top:1px solid var(--line); margin-top:48px}
+h2{font-size:clamp(24px,5vw,32px); line-height:1.3; margin:0 0 10px; letter-spacing:-.01em; font-weight:700}
+.sub{color:var(--mut); margin:0 0 28px; max-width:36em}
+h3{font-size:18px; margin:0 0 6px; font-weight:600}
+
+/* downloads */
+.dl{display:grid; gap:12px; grid-template-columns:1fr}
+@media(min-width:680px){.dl{grid-template-columns:repeat(3,1fr)}}
+.dl .card{
+  border:1px solid var(--line); border-radius:12px; padding:20px; display:flex; flex-direction:column; gap:14px; background:var(--panel);
+}
+.dl .card p{margin:0; color:var(--mut); font-size:14.5px; line-height:1.7; flex:1}
+.dl .card .btn{align-self:flex-start}
+
+/* steps */
+ol.steps{list-style:none; margin:0; padding:0}
+ol.steps>li{
+  display:grid; grid-template-columns:40px 1fr; gap:16px; padding:0 0 36px; position:relative;
+}
+ol.steps>li::before{
+  content:""; position:absolute; inset-inline-start:19px; top:44px; bottom:4px; width:1px; background:var(--line);
+}
+ol.steps>li:last-child::before{display:none}
+.num{
+  width:40px; height:40px; border:1px solid var(--fg); border-radius:50%;
+  display:grid; place-items:center; font-family:var(--mono); font-weight:600; font-size:15px; background:var(--bg); z-index:1;
+}
+.step-body{min-width:0}
+.step-body p{margin:6px 0 12px}
+.step-body p.note{color:var(--mut); font-size:14.5px}
+.step-body ul{margin:8px 0 12px; padding-inline-start:20px; color:var(--mut); font-size:15px}
+.step-body ul li{margin:2px 0}
+.step-body .actions{display:flex; flex-wrap:wrap; gap:10px; margin:12px 0}
+
+/* code */
+.code{position:relative; direction:ltr; text-align:left; border:1px solid var(--line); border-radius:10px; background:var(--panel); margin:10px 0 14px}
+.code pre{margin:0; padding:14px 78px 14px 16px; overflow-x:auto; font-family:var(--mono); font-size:13.5px; line-height:1.85}
+.code code{font-family:inherit}
+.code .cm{color:var(--mut)}
+.copy{
+  position:absolute; top:8px; right:8px; font:500 12px/1 var(--sans); color:var(--fg);
+  background:var(--bg); border:1px solid var(--line); border-radius:7px; padding:7px 10px; cursor:pointer;
+}
+.copy:hover{background:var(--hover)}
+
+/* tabs inside step */
+.seg{display:inline-flex; border:1px solid var(--line); border-radius:10px; padding:3px; gap:2px; margin:6px 0 12px; max-width:100%}
+.seg button{
+  font:500 14px/1 var(--sans); color:var(--mut); background:none; border:0; padding:10px 14px; border-radius:8px; cursor:pointer;
+}
+.seg button[aria-selected="true"]{background:var(--btn-bg); color:var(--btn-fg)}
+.panel[hidden]{display:none}
+
+/* faq */
+details{border-top:1px solid var(--line); padding:0}
+details:last-of-type{border-bottom:1px solid var(--line)}
+summary{
+  cursor:pointer; padding:16px 0; font-weight:500; list-style:none; display:flex; justify-content:space-between; gap:12px; align-items:center;
+}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+"; font-family:var(--mono); font-size:20px; color:var(--mut)}
+details[open] summary::after{content:"−"}
+details .ans{padding:0 0 18px; color:var(--mut); font-size:15.5px}
+details .ans p{margin:0 0 8px}
+
+/* commands page */
+.search{
+  width:100%; font:400 16px var(--sans); color:var(--fg); background:var(--panel);
+  border:1px solid var(--line); border-radius:10px; padding:14px 16px; margin:0 0 14px;
+}
+.search::placeholder{color:var(--mut)}
+.legend{display:flex; flex-wrap:wrap; gap:8px 18px; color:var(--mut); font-size:14px; margin:0 0 30px}
+.cmd-group{margin:0 0 40px}
+.cmd-group h2{font-size:22px; margin:0 0 4px}
+.cmd-group>p{color:var(--mut); margin:0 0 14px; font-size:15px}
+.cmd{
+  display:grid; grid-template-columns:minmax(120px,170px) 1fr; gap:6px 18px; align-items:start;
+  padding:14px 0; border-top:1px solid var(--line);
+}
+.cmd:last-child{border-bottom:1px solid var(--line)}
+@media(max-width:560px){.cmd{grid-template-columns:1fr}}
+.cmd .name{direction:ltr; text-align:right; font-family:var(--mono); font-size:14.5px; font-weight:500}
+@media(max-width:560px){.cmd .name{text-align:right}}
+.cmd .name button{
+  font:inherit; color:inherit; background:var(--panel); border:1px solid var(--line); border-radius:7px; padding:5px 10px; cursor:pointer;
+}
+.cmd .name button:hover{background:var(--hover)}
+.cmd .alias{display:block; margin-top:6px; color:var(--mut); font-size:12.5px}
+.cmd .desc{margin:0; font-size:15.5px; line-height:1.7}
+.tag{display:inline-block; font-size:12px; border:1px solid var(--line); border-radius:6px; padding:1px 8px; margin-inline-start:6px; color:var(--mut); line-height:1.7}
+.empty{color:var(--mut); padding:20px 0}
+
+footer{border-top:1px solid var(--line); margin-top:72px; padding:28px 0 40px; color:var(--mut); font-size:14px}
+footer .wrap{display:flex; flex-wrap:wrap; gap:10px 24px; justify-content:space-between}
+
+.page[hidden]{display:none}
+.toast{
+  position:fixed; inset-inline:0; bottom:calc(env(safe-area-inset-bottom,0px) + 20px); margin:auto; width:max-content; max-width:90%;
+  background:var(--btn-bg); color:var(--btn-fg); padding:10px 18px; border-radius:10px; font-size:14px; opacity:0; pointer-events:none; transition:opacity .2s;
+}
+.toast.show{opacity:1}
+@media (prefers-reduced-motion:reduce){
+  .cursor{animation:none}
+  .toast{transition:none}
+  html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#/">ultra-nova</a>
+    <nav class="tabs" aria-label="الصفحات">
+      <a href="#/" data-nav="home">التشغيل</a>
+      <a href="#/commands" data-nav="commands">الأوامر</a>
+    </nav>
+    <button class="theme" id="themeBtn" aria-label="تبديل المظهر" title="تبديل المظهر">◐</button>
+  </div>
+</header>
+
+<main>
+
+<!-- ============ PAGE 1 ============ -->
+<div class="page" id="page-home">
+  <div class="wrap">
+    <div class="hero">
+      <h1>Ultra Nova</h1>
+      <p class="lead">بوت واتساب لإدارة القروبات والحماية. هذا الشرح يوصّلك من التحميل لين يشتغل البوت على جوالك بـ Termux.</p>
+      <div class="cta">
+        <a class="btn solid" href="https://t.me/ultra_nova_v2/11" target="_blank" rel="noopener">تحميل البوت</a>
+        <a class="btn ghost" href="#steps" id="goSteps">طريقة التشغيل</a>
+      </div>
+
+      <div class="term" aria-label="مثال على شاشة التشغيل">
+        <div class="bar"><i></i><i></i><i></i></div>
+<pre><span class="dim">~/bot $</span> node .
+ PHONE NUMPER : 9665XXXXXXXX
+ Password (8 chars): ********
+
+────────── Pairing Information ──────────
+Pairing Code : XXXX-XXXX
+─────────────────────────────────────────
+<span class="dim">~/bot $</span> <span class="cursor"></span></pre>
+      </div>
+    </div>
+
+    <section class="block" id="downloads">
+      <h2>التطبيقات المطلوبة</h2>
+      <p class="sub">تحتاج Termux عشان يشتغل البوت، و MT Manager اختياري لو تبي فك الضغط بالواجهة.</p>
+      <div class="dl">
+        <div class="card">
+          <h3>Termux</h3>
+          <p>الطرفية اللي يشتغل فيها البوت. نزّله من F-Droid، نسخة Google Play قديمة وما تشتغل صح.</p>
+          <a class="btn ghost sm" href="https://f-droid.org/packages/com.termux/" target="_blank" rel="noopener">تحميل Termux</a>
+        </div>
+        <div class="card">
+          <h3>MT Manager</h3>
+          <p>مدير ملفات يفك الضغط وينقل الملفات بسهولة. اختياري لكنه مريح للمبتدئ.</p>
+          <a class="btn ghost sm" href="https://mt-manager.en.uptodown.com/android" target="_blank" rel="noopener">تحميل من Uptodown</a>
+        </div>
+        <div class="card">
+          <h3>ملف البوت</h3>
+          <p>الملف UltraNovaPro.zip على قناة التيليجرام. نزّله وخزّنه بالجوال (الخطوة ٣).</p>
+          <a class="btn solid sm" href="https://t.me/ultra_nova_v2/11" target="_blank" rel="noopener">تحميل البوت</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="block" id="steps">
+      <h2>طريقة التشغيل</h2>
+      <p class="sub">انسخ الأوامر كما هي بزر «نسخ» والصقها في Termux. كل أمر يتنفذ بعد ما تضغط Enter.</p>
+
+      <ol class="steps">
+        <li>
+          <div class="num">1</div>
+          <div class="step-body">
+            <h3>ثبّت التطبيقات</h3>
+            <p>ثبّت Termux من الرابط فوق، وافتحه مرة وحدة وانتظر لين يطلع لك سطر الأوامر.</p>
+          </div>
+        </li>
+
+        <li>
+          <div class="num">2</div>
+          <div class="step-body">
+            <h3>جهّز Termux</h3>
+            <p>الصق الأمر ذا. يحدّث النظام ويثبّت Node.js وأداة فك الضغط.</p>
+            <div class="code"><pre><code>pkg update -y &amp;&amp; pkg upgrade -y &amp;&amp; pkg install nodejs unzip -y</code></pre><button class="copy">نسخ</button></div>
+            <p class="note">لو سألك شي مثل (Y/N) اكتب y واضغط Enter. يأخذ دقائق حسب النت.</p>
+            <p>بعدها اعطِ Termux إذن الوصول لملفات الجوال:</p>
+            <div class="code"><pre><code>termux-setup-storage</code></pre><button class="copy">نسخ</button></div>
+            <p class="note">بتطلع نافذة إذن، اضغط «سماح».</p>
+          </div>
+        </li>
+
+        <li>
+          <div class="num">3</div>
+          <div class="step-body">
+            <h3>نزّل البوت من تيليجرام واحفظه بالجوال</h3>
+            <ul>
+              <li>افتح رابط التحميل واضغط على الملف عشان ينزل.</li>
+              <li>اضغط مطولاً على الملف ثم اختر «حفظ في التنزيلات» (Save to Downloads).</li>
+            </ul>
+            <div class="actions">
+              <a class="btn solid sm" href="https://t.me/ultra_nova_v2/11" target="_blank" rel="noopener">فتح الملف في تيليجرام</a>
+            </div>
+            <p class="note">لازم يكون محفوظ بالجوال، وإلا Termux ما بيشوفه.</p>
+          </div>
+        </li>
+
+        <li>
+          <div class="num">4</div>
+          <div class="step-body">
+            <h3>انقل الملف وفك الضغط</h3>
+            <p>اختر طريقة وحدة، الأولى أسرع.</p>
+            <div class="seg" role="tablist" aria-label="طريقة فك الضغط">
+              <button role="tab" aria-selected="true" data-tab="t1">من Termux (الأسرع)</button>
+              <button role="tab" aria-selected="false" data-tab="t2">من MT Manager</button>
+            </div>
+
+            <div class="panel" id="t1" role="tabpanel">
+              <p>الأوامر ذي تنقل الملف من التنزيلات وتفكه وتدخل مجلد البوت:</p>
+              <div class="code"><pre><code>cp ~/storage/downloads/UltraNovaPro.zip ~
+cd ~
+unzip -o UltraNovaPro.zip
+cd bot</code></pre><button class="copy">نسخ</button></div>
+              <p class="note">لو اسم الملف عندك مختلف، شوف اسمه بهذا الأمر وعدّله في السطر الأول والثالث:</p>
+              <div class="code"><pre><code>ls ~/storage/downloads | grep -i zip</code></pre><button class="copy">نسخ</button></div>
+            </div>
+
+            <div class="panel" id="t2" role="tabpanel" hidden>
+              <ul>
+                <li>افتح MT Manager وروح لمجلد Download.</li>
+                <li>اضغط مطولاً على الملف واختر «نقل» أو «نسخ»، ثم الصقه داخل مجلد Termux الظاهر في القائمة الجانبية.</li>
+                <li>اضغط على الملف واختر «استخراج إلى» ثم «المجلد الحالي».</li>
+                <li>ارجع لـ Termux وادخل مجلد البوت:</li>
+              </ul>
+              <div class="code"><pre><code>cd ~/bot</code></pre><button class="copy">نسخ</button></div>
+              <p class="note">لو ما ظهر Termux في قائمة MT Manager، استخدم الطريقة الأولى.</p>
+            </div>
+          </div>
+        </li>
+
+        <li>
+          <div class="num">5</div>
+          <div class="step-body">
+            <h3>شغّل البوت</h3>
+            <p>تأكد إنك داخل مجلد <code dir="ltr">bot</code> ثم شغّله:</p>
+            <div class="code"><pre><code>node .</code></pre><button class="copy">نسخ</button></div>
+            <p>بيطلب منك شيئين:</p>
+            <ul>
+              <li><b style="color:var(--fg)">رقمك:</b> بمفتاح الدولة وبدون + أو أصفار، مثل 9665XXXXXXXX.</li>
+              <li><b style="color:var(--fg)">كلمة سر من 8 خانات:</b> أحرف إنجليزية أو أرقام. هذي تختارها أنت، واحفظها لأن البوت يطلبها لو نقلته لجوال ثاني.</li>
+            </ul>
+          </div>
+        </li>
+
+        <li>
+          <div class="num">6</div>
+          <div class="step-body">
+            <h3>اربطه بواتساب</h3>
+            <p>بيطلع لك «Pairing Code». في واتساب:</p>
+            <ul>
+              <li>الإعدادات ← الأجهزة المرتبطة ← ربط جهاز.</li>
+              <li>اختر «الربط باستخدام رقم الهاتف بدلاً من ذلك».</li>
+              <li>اكتب الكود اللي طلع في Termux.</li>
+            </ul>
+            <p class="note">لما يتم الربط يطلع في Termux أن البوت جاهز وينتظر الأمر start.</p>
+          </div>
+        </li>
+
+        <li>
+          <div class="num">7</div>
+          <div class="step-body">
+            <h3>فعّل البوت بأمر start</h3>
+            <p>افتح واتساب، وفي محادثتك مع نفسك أو في قروب خاص فيك أرسل:</p>
+            <div class="code"><pre><code>.start</code></pre><button class="copy">نسخ</button></div>
+            <p>البوت يرد عليك بقائمة. أول مرة يطلب منك اسم للحساب (3 أحرف أو أكثر)، اكتب أي اسم. بعدها يدخل الحساب ويشتغل.</p>
+            <p>للتأكد إنه شغال، أرسل:</p>
+            <div class="code"><pre><code>.اوامر</code></pre><button class="copy">نسخ</button></div>
+            <p class="note">لو ظهرت لك قائمة الأوامر فكل شي تمام. شرح الأوامر في صفحة <a href="#/commands">الأوامر</a>.</p>
+          </div>
+        </li>
+
+        <li>
+          <div class="num">8</div>
+          <div class="step-body">
+            <h3>تشغيله مرة ثانية</h3>
+            <p>الربط يتحفظ، فما تحتاج تعيد الخطوات. افتح Termux وشغّله:</p>
+            <div class="code"><pre><code>cd ~/bot &amp;&amp; node .</code></pre><button class="copy">نسخ</button></div>
+            <p>عشان ما يوقف لما تقفل الشاشة، شغّل هذا الأمر قبله:</p>
+            <div class="code"><pre><code>termux-wake-lock</code></pre><button class="copy">نسخ</button></div>
+            <p class="note">لإيقاف البوت اضغط Ctrl + C. في لوحة Termux الإضافية استخدم زر CTRL ثم C.</p>
+          </div>
+        </li>
+      </ol>
+    </section>
+
+    <section class="block" id="help">
+      <h2>مشاكل شائعة</h2>
+      <p class="sub">إذا واجهتك مشكلة، شوف إذا تطابق أحد هذي الحالات.</p>
+
+      <details>
+        <summary>ظهر لي Cannot find module</summary>
+        <div class="ans"><p>ناقصة بعض المكتبات. وأنت داخل مجلد bot نفّذ:</p>
+        <div class="code"><pre><code>npm install</code></pre><button class="copy">نسخ</button></div>
+        <p>ثم شغّل <code dir="ltr">node .</code> من جديد.</p></div>
+      </details>
+      <details>
+        <summary>node: command not found</summary>
+        <div class="ans"><p>Node.js ما انثبت. نفّذ:</p>
+        <div class="code"><pre><code>pkg install nodejs -y</code></pre><button class="copy">نسخ</button></div></div>
+      </details>
+      <details>
+        <summary>ما لقى الملف أو ما ظهر مجلد storage</summary>
+        <div class="ans"><p>نفّذ <code dir="ltr">termux-setup-storage</code> واضغط «سماح»، ثم تأكد إن الملف محفوظ في التنزيلات وإن اسمه مطابق للأمر.</p></div>
+      </details>
+      <details>
+        <summary>ما طلع كود الربط أو طلع خطأ</summary>
+        <div class="ans"><p>تأكد إن الرقم بمفتاح الدولة وأرقام فقط، وإن النت شغال. بعدها شغّل البوت من جديد.</p></div>
+      </details>
+      <details>
+        <summary>طلب مني Password وأنا ما غيرت شي</summary>
+        <div class="ans"><p>البوت يتحقق من الجهاز، وإذا نقلته لجوال ثاني يطلب كلمة السر اللي اخترتها بالخطوة ٥ (8 خانات). اكتبها وبيكمل. بعد 3 محاولات خاطئة يحذف الجلسة وتحتاج تربطه من جديد.</p></div>
+      </details>
+      <details>
+        <summary>البوت وقف لوحده</summary>
+        <div class="ans"><p>غالباً انقطع النت، أو أندرويد قفل Termux في الخلفية. شغّل <code dir="ltr">termux-wake-lock</code>، واستثنِ Termux من توفير البطارية في إعدادات الجوال، ثم أعد التشغيل.</p></div>
+      </details>
+    </section>
+  </div>
+</div>
+
+<!-- ============ PAGE 2 ============ -->
+<div class="page" id="page-commands" hidden>
+  <div class="wrap">
+    <div class="hero" style="padding-bottom:20px">
+      <h1 style="font-size:clamp(36px,9vw,64px)">الأوامر</h1>
+      <p class="lead">كل أمر يبدأ بنقطة قبل اسمه، مثل <code dir="ltr">.اوامر</code>. اكتب <code dir="ltr">.اوامر</code> داخل البوت عشان تتصفح القائمة التفاعلية.</p>
+    </div>
+
+    <input class="search" id="q" type="search" placeholder="ابحث عن أمر..." aria-label="ابحث عن أمر" autocomplete="off">
+    <div class="legend">
+      <span>🔰 للنخبة فقط</span>
+      <span>🔒 مقفل</span>
+      <span>اضغط على الأمر لنسخه</span>
+    </div>
+
+    <div id="list"></div>
+
+    <section class="block" style="margin-top:8px">
+      <h2>وش هي النخبة؟</h2>
+      <p class="sub" style="margin-bottom:0">النخبة قائمة أشخاص مسموح لهم باستخدام الأوامر الحساسة مثل الطرد والترقية والحماية. رقم البوت يُضاف لها تلقائياً. تُدار بأمر <code dir="ltr">.نخبة</code>.</p>
+    </section>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Ultra Nova</span>
+    <a href="https://t.me/ultra_nova_v2" target="_blank" rel="noopener">قناة التيليجرام</a>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+  var $ = function(s,r){return (r||document).querySelector(s)};
+  var $$ = function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+
+  /* ---------- toast + copy ---------- */
+  var toast = $('#toast'), tt;
+  function say(msg){
+    toast.textContent = msg; toast.classList.add('show');
+    clearTimeout(tt); tt = setTimeout(function(){toast.classList.remove('show')}, 1600);
+  }
+  function copyText(text){
+    function fallback(){
+      var ta = document.createElement('textarea');
+      ta.value = text; ta.style.position='fixed'; ta.style.opacity='0';
+      document.body.appendChild(ta); ta.select();
+      try{ document.execCommand('copy'); say('تم النسخ'); }catch(e){ say('تعذر النسخ، انسخ يدوياً'); }
+      document.body.removeChild(ta);
+    }
+    if(navigator.clipboard && window.isSecureContext){
+      navigator.clipboard.writeText(text).then(function(){say('تم النسخ')}, fallback);
+    } else fallback();
+  }
+  document.addEventListener('click', function(e){
+    var b = e.target.closest('.copy');
+    if(b){
+      var code = $('code', b.parentNode);
+      copyText(code.textContent.replace(/\u00a0/g,' '));
+      var old = b.textContent; b.textContent = 'تم النسخ';
+      setTimeout(function(){b.textContent = old}, 1400);
+    }
+  });
+
+  /* ---------- segmented tabs ---------- */
+  $$('.seg button').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var seg = btn.parentNode;
+      $$('button', seg).forEach(function(x){x.setAttribute('aria-selected', x===btn ? 'true':'false')});
+      var holder = seg.parentNode;
+      $$('.panel', holder).forEach(function(p){p.hidden = (p.id !== btn.dataset.tab)});
+    });
+  });
+
+  /* ---------- commands data ---------- */
+  var DATA = [
+    {title:'عام', note:'أوامر الاستخدام اليومي.', items:[
+      {n:'اوامر', a:[], d:'قائمة الأوامر التفاعلية. تتنقل بين الأقسام وتشوف تفاصيل كل أمر.'},
+      {n:'حالة', a:[], d:'تعرض حالة البوت وسرعته ومدة تشغيله.'},
+      {n:'تست', a:[], d:'اختبار بسيط يتأكد إن البوت يرد.'},
+      {n:'اعدادات', a:[], d:'لوحة تحكم شاملة: الثيمات، نوفا، الأوامر، وإعدادات البوت.', lock:true},
+      {n:'نخبة', a:[], d:'إدارة قائمة النخبة.', elite:true, lock:true}
+    ]},
+    {title:'إدارة القروبات', note:'تُستخدم داخل القروب، والبوت لازم يكون مشرف.', items:[
+      {n:'ادمن', a:[], d:'ترقية عضو لمشرف. في القروب ترقيه في القروب الحالي، وفي الخاص ترقيه في كل القروبات.', elite:true},
+      {n:'خفض', a:[], d:'إزالة الإشراف من عضو محدد.', elite:true},
+      {n:'طير', a:[], d:'طرد عضو محدد من القروب بصمت.', elite:true},
+      {n:'شات', a:[], d:'فتح أو قفل الدردشة في القروب بصمت.', elite:true},
+      {n:'منشن', a:[], d:'إرسال رسالة أو ملصق مع منشن لكل أعضاء القروب.', elite:true},
+      {n:'jid', a:[], d:'يعرض معرّف القروب الحالي (JID).', elite:true},
+      {n:'مسح', a:['حذف','d'], d:'يحذف الرسالة اللي ترد عليها بصمت.', elite:true}
+    ]},
+    {title:'الحماية والمراقبة', note:'أوامر تكشف الأجهزة المرتبطة وتراقب القروبات.', items:[
+      {n:'حماية', a:['protection'], d:'اختيار قروب إشعارات الحماية، وتحديد القروبات اللي يشتغل فيها النظام.', elite:true},
+      {n:'قروب', a:['notifygroup'], d:'جلسة تفاعلية تسجّل القروبات في مجموعات إشعارات مرقمة.', elite:true},
+      {n:'فحص', a:[], d:'يفحص كل أعضاء قروب معين ويكشف الأجهزة المرتبطة بكل عضو.', elite:true},
+      {n:'طلبات', a:['قبول'], d:'يفحص أجهزة أصحاب طلبات الانضمام للقروب، وتوافق عليها مرة وحدة.'},
+      {n:'راقب', a:['watch','مراقب_اعضاء'], d:'فحص تلقائي كل 5 دقائق، ويبلّغ فقط عن الأعضاء اللي لهم أجهزة مرتبطة.', elite:true},
+      {n:'مراقب', a:['مراقبة','monitor'], d:'يعرض حالة مراقبة صلاحيات المشرفين.', elite:true},
+      {n:'رابط', a:[], d:'يحوّل معرّف القروب (ID) إلى رابط دعوة.', elite:true},
+      {n:'جهات الاتصال', a:[], d:'تلقائي بدون أمر: يحذف بطاقات جهات الاتصال في القروب ويطرد مرسلها مع إشعار بالمنشن.', auto:true}
+    ]},
+    {title:'ألعاب', note:'', items:[
+      {n:'اكس', a:[], d:'لعبة XO الكلاسيكية، مع صديق أو ضد البوت.'}
+    ]}
+  ];
+
+  var list = $('#list');
+  function esc(s){return String(s).replace(/[&<>\"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]})}
+
+  function render(filter){
+    var f = (filter||'').trim().toLowerCase().replace(/^\./,'');
+    var html = '', total = 0;
+    DATA.forEach(function(g){
+      var rows = g.items.filter(function(c){
+        if(!f) return true;
+        return (c.n+' '+c.a.join(' ')+' '+c.d).toLowerCase().indexOf(f) > -1;
+      });
+      if(!rows.length) return;
+      total += rows.length;
+      html += '<div class="cmd-group"><h2>'+esc(g.title)+'</h2>' + (g.note?'<p>'+esc(g.note)+'</p>':'');
+      rows.forEach(function(c){
+        var tags = (c.elite?'<span class="tag">🔰 نخبة</span>':'') + (c.lock?'<span class="tag">🔒 مقفل</span>':'') + (c.auto?'<span class="tag">تلقائي</span>':'');
+        var nameHtml = c.auto
+          ? '<span>'+esc(c.n)+'</span>'
+          : '<button type="button" data-copy=".'+esc(c.n)+'">.'+esc(c.n)+'</button>';
+        var alias = c.a.length ? '<span class="alias">أو: '+c.a.map(function(x){return '.'+esc(x)}).join('  ')+'</span>' : '';
+        html += '<div class="cmd"><div class="name">'+nameHtml+alias+'</div><p class="desc">'+esc(c.d)+tags+'</p></div>';
+      });
+      html += '</div>';
+    });
+    list.innerHTML = total ? html : '<p class="empty">ما لقيت أمر بهذا الاسم.</p>';
+  }
+  list.addEventListener('click', function(e){
+    var b = e.target.closest('[data-copy]');
+    if(b) copyText(b.getAttribute('data-copy'));
+  });
+  $('#q').addEventListener('input', function(e){ render(e.target.value) });
+  render('');
+
+  /* ---------- router ---------- */
+  var pages = {home:$('#page-home'), commands:$('#page-commands')};
+  function route(){
+    var h = location.hash || '#/';
+    var key = h.indexOf('#/commands') === 0 ? 'commands' : 'home';
+    Object.keys(pages).forEach(function(k){ pages[k].hidden = (k !== key) });
+    $$('[data-nav]').forEach(function(a){
+      if(a.dataset.nav === key) a.setAttribute('aria-current','page'); else a.removeAttribute('aria-current');
+    });
+    document.title = key === 'commands' ? 'الأوامر — Ultra Nova' : 'Ultra Nova — شرح تشغيل البوت';
+    window.scrollTo(0,0);
+  }
+  window.addEventListener('hashchange', route);
+  route();
+
+  /* hero button: scroll to steps */
+  $('#goSteps').addEventListener('click', function(e){
+    e.preventDefault();
+    if(location.hash && location.hash !== '#/') location.hash = '#/';
+    var el = $('#steps');
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    el.scrollIntoView({behavior: reduce ? 'auto':'smooth', block:'start'});
+  });
+
+  /* ---------- theme ---------- */
+  var root = document.documentElement;
+  try{ var saved = localStorage.getItem('un-theme'); if(saved) root.setAttribute('data-theme', saved); }catch(e){}
+  $('#themeBtn').addEventListener('click', function(){
+    var cur = root.getAttribute('data-theme');
+    if(!cur) cur = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    var next = cur === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    try{ localStorage.setItem('un-theme', next); }catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

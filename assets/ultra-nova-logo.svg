@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Ultra Nova</title>
+  <desc id="desc">شعار نجمة نوفا هندسية بالأبيض والأسود</desc>
+  <defs>
+    <linearGradient id="shine" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff"/>
+      <stop offset="1" stop-color="#a8b4c8"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="#05070b"/>
+  <circle cx="256" cy="256" r="190" fill="none" stroke="#273044" stroke-width="2"/>
+  <circle cx="256" cy="256" r="158" fill="none" stroke="#111722" stroke-width="2"/>
+  <path d="M256 76 286 216 426 256 286 286 256 436 226 286 86 256 226 216Z" fill="url(#shine)"/>
+  <path d="m256 171 18 67 67 18-67 18-18 67-18-67-67-18 67-18Z" fill="#05070b"/>
+  <circle cx="256" cy="256" r="10" fill="#fff"/>
+  <path d="M112 256h42M358 256h42M256 112v42M256 358v42" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".45"/>
+</svg>
