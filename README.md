@@ -43,3 +43,7 @@ python3 -m http.server 8000
 ## وصف المستودع المقترح
 
 `شرح عربي لتشغيل Ultra Nova على Termux، مع قائمة الأوامر وشعار وصورة GIF.`
+
+## الهاشتاقات
+
+#WhatsAppBot #Termux #UltraNova #BotTutorial #WhatsApp #NodeJS #Arabic #F-Droid #GitHubPages #OpenSource
